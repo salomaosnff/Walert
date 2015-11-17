@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="jquery-2.1.4.min.js"></script>
+    <script src="walert.js"></script>
+</head>
+<body>
+
+<form action="javascript:not()">
+    <input type="text" name="" id="t" placeholder="Título">
+    <input type="url" name="" id="i" placeholder="Icone">
+    <input type="number" name="" id="tt" placeholder="Tempo de Exibição">
+    <textarea name="" id="b" placeholder="Mensagem"></textarea>
+    <button type="submit">Vai!</button>
+</form>
+<script>
+    function not(){
+        new Walert({
+            title:$("#t").val(),
+            body: $("#b").val(),
+            time:$("#tt").val(),
+            icon:$("#i").val(),
+            easeTime: 250,
+            onClick:function(){
+                console.log("Click!");
+            },
+            onHoverIn:function(){
+                console.log("Hover In!");
+            },
+            onHoverOut:function(){
+                console.log("HoverOut!");
+            },
+            onClose:function(){
+                console.log("Close!");
+            },
+            onOpen:function(){
+                console.log("Open!");
+            }
+        });
+    }
+</script>
+</body>
+</html>
