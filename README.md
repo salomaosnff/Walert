@@ -57,8 +57,8 @@ Example:
             time:5000,
             icon: "http://hfsvt.studentrad.no/wp-content/uploads/2015/08/Earth_Globe.png"//Sets a icon
         })
-        alert("Title:"+notification.title+);
-        alert("Body:"+notification.body+);
+        alert("Title:"+notification.title);
+        alert("Body:"+notification.body);
 ```
 
 ## You can improve this code?
