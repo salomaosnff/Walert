@@ -6,20 +6,33 @@ var Walert = function(options){
 
     if((typeof $ == 'undefined') || (typeof jQuery == 'undefined')){
         throw new Error('jQuery é requerido!');
-    }else if(typeof options == 'object'){
+    }else if (typeof options != 'object') {
+        throw new Error('Parêmetro inválido!');
+    } else {
         var padrao = {
-            "title"      : "",
-            "icon"       : "",
-            "body"       : "",
-            "time"       : 5000,
-            "date"       : new Date(),
-            "easeTime"   : 250,
-            "onOpen"     : function(){return false;},
-            "onClose"    : function(){return false;},
-            "onClick"    : function(){return false;},
-            "onHoverIn"  : function(){return false;},
-            "onHoverOut" : function(){return false;}
-        },
+                "title": "",
+                "icon": "",
+                "body": "",
+                "time": 5000,
+                "date": new Date(),
+                "easeTime": 250,
+                "showOnDesktop": false,
+                "onOpen": function () {
+                    return false;
+                },
+                "onClose": function () {
+                    return false;
+                },
+                "onClick": function () {
+                    return false;
+                },
+                "onHoverIn": function () {
+                    return false;
+                },
+                "onHoverOut": function () {
+                    return false;
+                }
+            },
             config,
             box = $("#walert-box"),
             style = $('<style id="walert-style">' +
@@ -124,108 +137,122 @@ var Walert = function(options){
                 'color: #fff;' +
                 '}' +
                 '</style>'), to;
-        if($("#walert-style").length<=0){
+        if ($("#walert-style").length <= 0) {
             style.appendTo('head');
         }
-        if(box.length <= 0){
+        if (box.length <= 0) {
             $('<ul id="walert-box"></ul>').appendTo('body');
             box = $('#walert-box');
         }
         self.item = $('<li><span class="close"></span><img src="#" alt="icone" class="icon"><div class="content"><strong class="title"></strong><p class="body"></p></div><span class="time"></span></li>');
         config = $.extend(padrao, options);
 
-        if(typeof config.title == 'string'){
+        if (typeof config.title == 'string') {
             self.item.find('.title').html(config.title);
         }
-        if(typeof config.icon == 'string'){
-            self.item.find('.icon').attr('src',config.icon);
+        if (typeof config.icon == 'string') {
+            self.item.find('.icon').attr('src', config.icon);
         }
-        if(typeof config.body == 'string'){
+        if (typeof config.body == 'string') {
             self.item.find('.body').html(config.body);
         }
-        if(typeof config.date == 'string'){
+        if (typeof config.date == 'string') {
             self.item.find('.time').html(config.date);
         }
 
-        self._height = function(a){
+        self._height = function (a) {
             var item = box.find('li');
             var height = 0;
-            item.each(function(i, el){
-                height += $(el).outerHeight()+8;
+            item.each(function (i, el) {
+                height += $(el).outerHeight() + 8;
             });
-            if(a){
+            if (a) {
                 box.animate({
-                    'height' : height
-                }, config.easeTime, function(){
-                    $(this).css('height','auto')
+                    'height': height
+                }, config.easeTime, function () {
+                    $(this).css('height', 'auto')
                 });
-            }else{
-                box.css('height','auto');
+            } else {
+                box.css('height', 'auto');
             }
         };
-        self._close = function(){
+        self._close = function () {
 
-            self.item.fadeOut(500, function(){
-                $(this).css({'opacity':'0','display':'block'}).animate({
-                    'margin-bottom':'0',
-                    'height':'0',
-                    'min-height':'0',
-                    'max-height':'0'
-                }, config.easeTime, "linear", function(){
-                    setTimeout("$(this).remove()",1);
-                    if(typeof config.onClose == 'function'){
+            self.item.fadeOut(500, function () {
+                $(this).css({'opacity': '0', 'display': 'block'}).animate({
+                    'margin-bottom': '0',
+                    'height': '0',
+                    'min-height': '0',
+                    'max-height': '0'
+                }, config.easeTime, "linear", function () {
+                    setTimeout("$(this).remove()", 1);
+                    if (typeof config.onClose == 'function') {
                         config.onClose();
                     }
                 })
             });
 
         };
-        self._open = function(){
+        self._open = function () {
             self.item.appendTo(box).fadeOut(0);
             self._height(true);
             self.item.fadeIn(500);
-            self.item.find('.close').on('click',self._close);
-            to = setTimeout(self._close,config.time);
+            self.item.find('.close').on('click', self._close);
+            to = setTimeout(self._close, config.time);
 
             var evento = self.item.find('.icon, .content');
             //Evento Open
-            if(typeof config.onOpen == 'function'){
+            if (typeof config.onOpen == 'function') {
                 config.onOpen();
             }
 
             //Evento HoverIn
-            self.item.on('mouseenter',function(){
-                if(to){
+            self.item.on('mouseenter', function () {
+                if (to) {
                     to = clearTimeout(to);
                 }
 
-                if(typeof config.onHoverIn == 'function'){
+                if (typeof config.onHoverIn == 'function') {
                     config.onHoverIn();
                 }
             });
 
             //Evento Click
-            if(typeof config.onClick == 'function'){
-                evento.on('click',config.onClick);
+            if (typeof config.onClick == 'function') {
+                evento.on('mouseup', config.onClick);
             }
             //Evento HoverOut
-            self.item.on('mouseleave',function(){
-                if(!to){
-                    to = setTimeout(self._close,config.time);
+            self.item.on('mouseleave', function () {
+                if (!to) {
+                    to = setTimeout(self._close, config.time);
                 }
 
-                if(typeof config.onHoverOut == 'function'){
+                if (typeof config.onHoverOut == 'function') {
                     config.onHoverOut();
                 }
             });
 
         };
-        self._open();
+
+        if(config.showOnDesktop){
+            if(Notification){
+                Notification.requestPermission(function(permissao){
+                    if(permissao == "granted"){
+                        var not = new Notification(config.title,{icon:config.icon, body:config.body})
+                    }else{
+                        console.error("Permissão negada!\nExibindo notificação padrão do Walert...");
+                        self._open();
+                    }
+                });
+            }else{
+                throw("Seu navegador não possui a API de Notificações.");
+            }
+        }else{
+            self._open();
+        }
 
         return config;
 
-    }else{
-        throw new Error('Parêmetro inválido!');
     }
 };
 
