@@ -5,38 +5,197 @@
     <title>Title</title>
     <script src="jquery-2.1.4.min.js"></script>
     <script src="walert.jquery.js"></script>
+    <style>
+        html, body{
+            font-family: "Open Sans",Arial, Heveltica, sans-serif;
+            background: #333;
+            color:#fff
+        }
+        *{
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;}
+        input, textarea, button{
+            display: block;
+            width: 100%;
+            height: 64px;
+            margin: 4px 0;
+            padding-left: 16px;
+        }
+        button{
+            height: 64px;
+            font-size: 18px;
+            color:#333;
+            border:none;
+            background: #0fa;
+            cursor: pointer;
+        }
+        table{
+            width: 320px;
+            display: block;
+            margin: 0 auto;
+        }
+        table td{
+            width: 100%;
+        }
+        .led{
+            margin: 8px;
+            display: inline-block;
+            color: #eee;
+        }
+        .led:before{
+            content: "";
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background: #ddd;
+            vertical-align: middle;
+            margin-right: 4px;
+            -webkit-border-radius:16px;
+            -moz-border-radius:16px;
+            border-radius:16px;
+            -webkit-transition: all .25s ease-in;
+            -moz-transition: all .25s ease-in;
+            -ms-transition: all .25s ease-in;
+            -o-transition: all .25s ease-in;
+            transition: all .25s ease-in;
+        }
+        .led.aceso:before{
+            background: #f33;
+            -webkit-box-shadow:  -2px 2px 8px #f33;
+            -moz-box-shadow:  -2px 2px 8px #f33;
+            box-shadow:  -2px 2px 8px #f33;
+        }
+
+        ul{
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            background: #333;
+        }
+
+        .permission{
+            padding: 16px;
+        }
+        .permission.error{
+            background: #ffbfbf;
+            color     : #a33
+        }
+        .permission.alert{
+            background: #ffffbf;
+            color     : #a6a632;
+            cursor: pointer;
+        }
+        .permission.success{
+            background: #bfffca;
+            color     : #32a846
+        }
+    </style>
 </head>
 <body>
-
+<div class="permission alert">
+    <strong>Warning!</strong> Click to allow displaying desktop notifications.
+</div>
 <form action="javascript:not()">
-    <input type="text" name="" id="t" placeholder="Título">
-    <input type="url" name="" id="i" placeholder="Icone">
-    <input type="number" name="" id="tt" placeholder="Tempo de Exibição">
-    <textarea name="" id="b" placeholder="Mensagem"></textarea>
-    <button type="submit">Vai!</button>
+    <table>
+        <thead>
+            <tr>
+                <td>
+                    <h1>Walert</h1>
+                    <p>jQuery plugin for notifications on browser.</p>
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <input type="text" name="" id="t" placeholder="Title" value="Hello World!">
+                    <input type="url" name="" id="i" placeholder="Icon" value="https://lh3.ggpht.com/mBxFcK7L8Thw4KYzMmX29m7PdEecLzjdjdBZO7-wE9c0bgh9JomJ_9LvGATBmjQR0cs=w300">
+                    <input type="number" name="" id="tt" placeholder="Timeout" value="5000">
+                    <input type="text" name="" id="b" placeholder="Body" value="This is a Example!">
+                    <button type="submit">Vai!</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </form>
+<h2>Callbacks</h2>
+<ul>
+    <li id="op" class="led">onOpen</li>
+    <li id="hi" class="led">onHoverIn</li>
+    <li id="ck" class="led">onClick</li>
+    <li id="ho" class="led">onHoverOut</li>
+    <li id="cs" class="led">onClose</li>
+</ul>
 <script>
+    var time_led=1000;
+    function checkApiPermission(){
+        var api = (Notification)?Notification.permission:false;
+        if(api == "default"){
+            $(".permission").addClass("alert")
+                    .removeClass("error")
+                    .removeClass("success")
+                    .html("<strong>Warning!</strong> Click to allow displaying desktop notifications.<br>Otherwise it will use the Walert.")
+        }else if(api == "granted"){
+            $(".permission").addClass("success")
+                    .removeClass("alert")
+                    .removeClass("error")
+                    .html("<strong>Success!</strong> Accepts permission<br>Using the HTML5 API.")
+        }else if(api == "denied"){
+            $(".permission").addClass("error")
+                    .removeClass("alert")
+                    .removeClass("success")
+                    .html("<strong>Error!</strong> Permission denied!<br>Will be used Walert.")
+        }else{
+            $(".permission").addClass("error")
+                    .removeClass("alert")
+                    .removeClass("success")
+                    .html("<strong>Error!</strong> This browser does not support HTML5 notifications API!<br>Will be used Walert")
+        }
+    }
+    setInterval(checkApiPermission,1);
+    $(".permission.alert").on('click',function(){
+        Notification.requestPermission();
+    });
+
     function not(){
         new Walert({
-            title:$("#t").val(),
-            body: $("#b").val(),
-            time:$("#tt").val(),
-            icon:$("#i").val(),
-            easeTime: 250,
+            title:$("#t").val(),//Title of the notification
+            body: $("#b").val(),//Notification message
+            time:$("#tt").val(),//Time to hide
+            icon:$("#i").val(),//Icon of the notification
+            easeTime: 250,//Animation length
+            showOnDesktop:true,//If "true", uses HTML5 Notifications API
+            //Callbacks
             onClick:function(){
                 console.log("Click!");
+                $("#ck").addClass("aceso");
+                $("#cr").removeClass("aceso");
+                setTimeout('$("#ck").removeClass("aceso")',time_led)
             },
             onHoverIn:function(){
                 console.log("Hover In!");
+                $("#hi").addClass("aceso");
+                $("#ho").removeClass("aceso");
+                setTimeout('$("#hi").removeClass("aceso")',time_led)
             },
             onHoverOut:function(){
                 console.log("HoverOut!");
+                $("#ho").addClass("aceso");
+                $("#hi").removeClass("aceso");
+                setTimeout('$("#ho").removeClass("aceso")',time_led)
             },
             onClose:function(){
                 console.log("Close!");
+                $(".led").removeClass("aceso");
+                $("#cs").addClass("aceso");
+                setTimeout('$("#cs").removeClass("aceso")',time_led)
             },
             onOpen:function(){
                 console.log("Open!");
+                $("#op").addClass("aceso");
+                $("#cs").removeClass("aceso");
+                setTimeout('$("#op").removeClass("aceso")',time_led)
             }
         });
     }
